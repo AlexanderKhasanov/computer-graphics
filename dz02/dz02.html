@@ -1,0 +1,76 @@
+<HTML>
+<BODY>
+	<canvas id='origin_image' width=247 height=204, style="margin-right:0px"></canvas>
+	<canvas id='new_image' width=247 height=204></canvas>
+	<script>
+		var width_kernel = 3;
+		var height_kernel = 3;
+		var size_kernel = width_kernel * height_kernel;
+
+		var origin_canvas = document.getElementById("origin_image");
+		var width_image = origin_canvas.width;
+		var height_image = origin_canvas.height;
+
+		var new_canvas = document.getElementById("new_image");
+
+		function load_image(src, callback = function() {})
+		{
+			var image = new Image();
+			image.onload = function(){
+				origin_canvas.getContext('2d').drawImage(image, 0, 0);
+				callback();
+			}
+			image.src = src;
+		}
+
+		function medium_filter()
+		{
+			var image_data = origin_canvas.getContext('2d').getImageData(0, 0, width_image, height_image);
+			var origin_image_data = image_data.data;
+			for (let x = 0; x < width_image - 1; ++x)
+			{
+				for (let y = 0; y < height_image - 1; ++y)
+				{
+					if (x > 0 && y > 0)
+					{
+						let red = 0;
+						let green = 0;
+						let blue = 0;
+						let alpha = 255;
+						for (let h = -1; h < height_kernel - 1; ++h)
+						{
+							for (let w = -1; w < width_kernel - 1; ++w)
+							{
+								let k = ( (y + h) * width_image + (x + w) ) * 4;
+								
+								red += origin_image_data[k];
+								green += origin_image_data[k+1];
+								blue += origin_image_data[k+2];
+							}
+						}
+						red /= size_kernel;
+						green /= size_kernel;
+						blue /= size_kernel;
+
+						let k = (y * width_image + x) * 4;
+						image_data.data[k] = red;
+						image_data.data[k + 1] = green;
+						image_data.data[k + 2] = blue;
+					}
+				}
+			}
+			new_canvas.getContext('2d').putImageData(image_data, 0, 0);
+		}
+
+		var link = document.createElement('a');
+		link.innerHTML = 'Save new image';
+		link.addEventListener("click", function() {
+			link.href = new_canvas.toDataURL();
+			link.dowload = "canvas.jpeg";
+		}, false);
+		document.body.appendChild(link);
+
+        load_image('image.jpeg', medium_filter);
+	</script>
+</BODY>
+</HTML>
