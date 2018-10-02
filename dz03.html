@@ -1,0 +1,106 @@
+<HTML>
+<BODY style="margin:0px">
+	<canvas id="dz3" width=$(window).width height=$(window).height></canvas>
+
+	<script type="text/javascript">	
+
+		var canvas = document.getElementById('dz3');
+	    var ctx = canvas.getContext('2d');
+
+	    function init() {
+	        canvas.width = window.innerWidth;
+	        canvas.height = window.innerHeight;	  
+	    }
+	    init();
+	    window.onresize = init;
+
+		function line(ctx, x0, y0, x1, y1)
+		{
+			let delta_x = Math.abs(x0 - x1);
+			let delta_y = Math.abs(y0 - y1);
+
+			let begin_1 = 0;
+			let end_1 = 0;
+			let step_1 = 0;
+			let begin_2 = 0;
+			let end_2 = 0;
+			let step_2 = 0;
+			let error = 0;
+			let limit_error = 0;
+			let delta_error = 0;
+
+			if (delta_x >= delta_y)
+			{
+	            begin_1 = x0;
+	            end_1 = x1;
+	            step_1 = x1 > x0 ? 1 : -1;
+	            begin_2 = y0;
+	            step_2 = y1 > y0 ? 1 : -1;
+	            delta_error = 2 * delta_y;
+	            limit_error = 2 * delta_x;
+	        }
+	        else 
+	        {
+	            begin_1 = y0;
+	            end_1 = y1;
+	            step_1 = y1 > y0 ? 1 : -1;
+	            begin_2 = x0;
+	            step_2 = x1 > x0 ? 1 : -1;
+	            delta_error = 2 * delta_x;
+	            limit_error = 2 * delta_y;
+	        }	
+
+	        let j = begin_2;
+			for(let i = begin_1; i <= end_1; i += step_1)
+			{
+				if (delta_x >= delta_y)
+				{
+					ctx.fillRect(i, j, 1, 1);
+				}
+				else
+				{
+					ctx.fillRect(j, i, 1, 1);
+				}
+				error = error + delta_error;
+				if (2 * error >= limit_error)
+				{
+					j = j + step_2;
+					error = error - limit_error;
+				}
+			}
+			
+		}
+
+	    function circle(ctx, x0, y0, r) {
+	        let x = 0;
+	        let y = r;
+	        let delta = 1 - 2 * r;
+	        let error = 0;
+	        while (y >= 0) {
+	            ctx.fillRect(x0 + x, y0 + y, 1, 1);
+	            ctx.fillRect(x0 + x, y0 - y, 1, 1);
+	            ctx.fillRect(x0 - x, y0 + y, 1, 1);
+	            ctx.fillRect(x0 - x, y0 - y, 1, 1);
+	            error = 2 * (delta + y) - 1;
+	            if ((delta < 0) && (error <= 0)) {
+	                delta += 2 * ++x + 1;
+	                continue;
+	            }
+	            if ((delta > 0) && (error > 0)) {
+	                delta -= 2 * --y + 1;
+	                continue;
+	            }
+	            delta += 2 * (++x - y--);
+	        }
+	        return true;
+	    }
+
+	    circle(ctx, 300, 100, 20);
+		
+		line(ctx, 0, 0, 300, 600);
+
+	</script>
+
+</BODY>
+</HTML>
+
